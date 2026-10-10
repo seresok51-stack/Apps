@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PK GPT</title>
+<style>
+:root{--bg:#0a0a0a;--red:#e11d2e;--red2:#7f0d18;--tx:#f3eaea;--mut:#9a8c8c;--card:#150f11;--line:#3a1218;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:radial-gradient(circle at 12% 0,#5a0610 0,transparent 45%),radial-gradient(circle at 100% 100%,#3d040b 0,transparent 50%),var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(225,29,46,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(225,29,46,.07) 1px,transparent 1px);background-size:34px 34px}
+#app{position:relative;display:flex;height:100%}
+aside{width:260px;background:rgba(10,6,7,.92);border-right:1px solid var(--red2);display:flex;flex-direction:column;padding:12px;gap:10px;z-index:5;transition:transform .25s}
+.logo{font-weight:800;font-size:20px;letter-spacing:2px;color:var(--red);text-shadow:0 0 14px rgba(225,29,46,.7);padding:6px 4px}
+.logo small{display:block;font-size:10px;color:var(--mut);letter-spacing:3px;font-weight:400}
+button{font:inherit;color:var(--tx);cursor:pointer}
+.btn{background:linear-gradient(135deg,var(--red),var(--red2));border:0;border-radius:10px;padding:10px 12px;font-weight:600;box-shadow:0 0 14px rgba(225,29,46,.35)}
+.ghost{background:transparent;border:1px solid var(--red2);border-radius:10px;padding:9px 12px}
+.ghost:hover{background:rgba(225,29,46,.12)}
+#hist{flex:1;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.h{padding:9px 10px;border-radius:8px;border:1px solid transparent;background:transparent;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.h.on,.h:hover{border-color:var(--red2);background:rgba(225,29,46,.1)}
+main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
+header{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--red2);background:rgba(10,6,7,.7)}
+#menu{display:none;background:none;border:1px solid var(--red2);border-radius:8px;padding:4px 10px;font-size:18px}
+#badge{margin-left:auto;font-size:11px;border:1px solid var(--red);color:var(--red);border-radius:20px;padding:2px 10px;display:none}
+#msgs{flex:1;overflow:auto;padding:16px 14px;display:flex;flex-direction:column;gap:12px}
+.m{max-width:min(720px,88%);padding:10px 14px;border-radius:14px;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere}
+.m.u{align-self:flex-end;background:linear-gradient(135deg,var(--red),var(--red2));border-bottom-right-radius:4px}
+.m.b{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--red);border-bottom-left-radius:4px}
+.empty{margin:auto;text-align:center;color:var(--mut)}
+.empty b{display:block;font-size:28px;color:var(--red);text-shadow:0 0 18px rgba(225,29,46,.7);letter-spacing:3px}
+form{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--red2);background:rgba(10,6,7,.8)}
+#in{flex:1;background:var(--card);border:1px solid var(--red2);border-radius:12px;color:var(--tx);padding:11px 14px;font:inherit;outline:none}
+#in:focus{border-color:var(--red);box-shadow:0 0 0 2px rgba(225,29,46,.25)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:20;padding:16px}
+.ov.on{display:flex}
+.box{width:100%;max-width:440px;max-height:90%;overflow:auto;background:#100a0c;border:1px solid var(--red);border-radius:16px;padding:18px;box-shadow:0 0 40px rgba(225,29,46,.35);display:flex;flex-direction:column;gap:10px}
+.box h2{margin:0;color:var(--red);letter-spacing:1px}
+input.t,textarea.t{width:100%;background:var(--card);border:1px solid var(--red2);border-radius:10px;color:var(--tx);padding:10px;font:inherit;outline:none}
+.err{color:#ff6b78;font-size:13px;min-height:18px}
+.row{display:flex;gap:8px}
+.rule{display:flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:13px}
+.rule span{flex:1;overflow-wrap:anywhere}
+.stat{display:flex;gap:8px}
+.stat div{flex:1;border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center;background:var(--card)}
+.stat b{display:block;font-size:20px;color:var(--red)}
+select.t{width:100%;background:var(--card);border:1px solid var(--red2);border-radius:10px;color:var(--tx);padding:9px;font:inherit}.sum{border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--card);font-size:13px;display:flex;flex-direction:column;gap:4px}.sum div{display:flex;justify-content:space-between;gap:8px}.steps{margin:0;padding-left:18px;color:var(--mut);font-size:13px}.plan{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--card);cursor:pointer}.plan.on{border-color:var(--red);box-shadow:0 0 12px rgba(225,29,46,.4)}.key{font-size:20px;text-align:center;letter-spacing:1px;color:var(--red);border:1px dashed var(--red);border-radius:10px;padding:10px;user-select:all}
+@media(max-width:760px){aside{position:absolute;inset:0 auto 0 0;transform:translateX(-100%)}aside.on{transform:none}#menu{display:block}}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="side">
+    <div class="logo">PK GPT<small>ASSISTENTE ORIGINAL</small></div>
+    <button class="btn" id="new">+ Novo chat</button>
+    <div id="hist"></div>
+    <label style="font-size:12px;color:var(--mut)">🌍 Idioma / país da fala</label>
+    <select class="t" id="lang"></select>
+    <button class="ghost" id="spk">🔊 Ler respostas: desligado</button>
+    <button class="ghost" id="pay">🧠 Planos / Pix</button>
+    <button class="ghost" id="adm">🔐 Modo administrativo</button>
+  </aside>
+  <main>
+    <header><button id="menu" aria-label="Menu">☰</button><b>PK GPT</b><span id="badge">ADMIN</span></header>
+    <div id="msgs"></div>
+    <form id="f"><input id="in" placeholder="Digite sua mensagem..." autocomplete="off"><button class="btn" type="submit">Enviar</button></form>
+  </main>
+</div>
+
+<div class="ov" id="ovLogin"><div class="box">
+  <h2>Acesso administrativo</h2>
+  <input class="t" id="u" placeholder="Usuário" autocomplete="off" autocapitalize="off">
+  <input class="t" id="p" type="password" placeholder="Senha">
+  <div class="err" id="le"></div>
+  <div class="row"><button class="ghost" id="lc" style="flex:1">Cancelar</button><button class="btn" id="lo" style="flex:1">Entrar</button></div>
+</div></div>
+
+<div class="ov" id="ovPay"><div class="box">
+  <h2>🧠 Pagamento via Pix</h2>
+  <div id="plans" style="display:flex;flex-direction:column;gap:8px"></div>
+  <div id="sum" class="sum"></div>
+  <ol class="steps"><li>Escolha o plano e copie a chave Pix.</li><li>No app do seu banco, pague o valor do plano e cole a referência na mensagem do Pix.</li><li>Volte aqui, preencha seus dados e toque em "Já paguei".</li></ol>
+  <span style="color:var(--mut);font-size:13px">Chave Pix:</span>
+  <div class="key">075.736.565.56</div>
+  <button class="ghost" id="cp">Copiar chave</button>
+  <input class="t" id="pn" placeholder="Seu nome (para avisar o pagamento)">
+  <input class="t" id="pc2" placeholder="WhatsApp ou e-mail (opcional)">
+  <input class="t" id="po" placeholder="Observação (opcional)">
+  <button class="btn" id="paid">Já paguei</button>
+  <div class="err" id="pm" style="color:#f3eaea"></div>
+  <div id="rc" class="sum" style="display:none;border-color:var(--red)"></div>
+  <button class="ghost" id="payc">Fechar</button>
+</div></div>
+
+<div class="ov" id="ovPanel"><div class="box">
+  <h2>Painel admin</h2>
+  <div class="stat"><div><b id="s1">0</b>chats</div><div><b id="s2">0</b>mensagens</div><div><b id="s3">0</b>regras</div></div>
+  <label>Mensagem de boas-vindas</label>
+  <input class="t" id="w">
+  <button class="ghost" id="ws">Salvar boas-vindas</button>
+  <label>Nova resposta automática</label>
+  <input class="t" id="rk" placeholder="Se a pergunta contiver...">
+  <textarea class="t" id="ra" rows="2" placeholder="Responder com..."></textarea>
+  <button class="ghost" id="rs">Adicionar regra</button>
+  <div id="rl" style="display:flex;flex-direction:column;gap:6px"></div>
+  <label>Pagamentos Pix informados</label>
+  <div id="pl" style="display:flex;flex-direction:column;gap:6px"></div>
+  <button class="ghost" id="clr">Apagar todos os chats</button>
+  <div class="row"><button class="ghost" id="out" style="flex:1">Sair</button><button class="btn" id="pc" style="flex:1">Fechar</button></div>
+</div></div>
+
+<script>
+(function(){
+var KEY="pkgpt_v1",$=function(i){return document.getElementById(i)};
+var S={chats:[],cur:null,welcome:"Olá! Eu sou o PK GPT. Como posso ajudar?",rules:[],pays:[],lang:"pt-BR",speak:false},admin=false;
+try{var r=localStorage.getItem(KEY);if(r){var d=JSON.parse(r);if(d&&Array.isArray(d.chats)){S.chats=d.chats;S.cur=d.cur;S.welcome=d.welcome||S.welcome;S.rules=Array.isArray(d.rules)?d.rules:[];S.pays=Array.isArray(d.pays)?d.pays:[];if(typeof d.lang==="string")S.lang=d.lang;S.speak=!!d.speak}}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function chat(){for(var i=0;i<S.chats.length;i++)if(S.chats[i].id===S.cur)return S.chats[i];return null}
+function newChat(){var c={id:Date.now()+""+Math.floor(Math.random()*1000),title:"Novo chat",msgs:[]};S.chats.unshift(c);S.cur=c.id;save();render();closeSide()}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
+function render(){
+  var h=$("hist");h.innerHTML="";
+  S.chats.forEach(function(c){var b=el("button","h"+(c.id===S.cur?" on":""),c.title);b.onclick=function(){S.cur=c.id;save();render();closeSide()};h.appendChild(b)});
+  var m=$("msgs");m.innerHTML="";var c=chat();
+  if(!c||!c.msgs.length){var e=el("div","empty");e.appendChild(el("b",null,"PK GPT"));e.appendChild(el("span",null,S.welcome));m.appendChild(e)}
+  else c.msgs.forEach(function(x){m.appendChild(el("div","m "+(x.r==="u"?"u":"b"),x.t))});
+  m.scrollTop=m.scrollHeight;
+  $("badge").style.display=admin?"block":"none";
+}
+function closeSide(){$("side").classList.remove("on")}
+function calc(q){
+  var s=q.replace(/,/g,".").replace(/[x×]/gi,"*").replace(/÷/g,"/");
+  var mm=s.match(/[\d.()+\-*\/% ]{3,}/);
+  if(!mm||!/\d\s*[+\-*\/%]\s*[\d(]/.test(mm[0]))return null;
+  try{var v=Function('"use strict";return ('+mm[0]+')')();if(typeof v==="number"&&isFinite(v))return "Resultado: "+Math.round(v*1e8)/1e8}catch(e){}
+  return null;
+}
+function reply(q){
+  var l=q.toLowerCase();
+  for(var i=0;i<S.rules.length;i++)if(l.indexOf(S.rules[i].k.toLowerCase())>=0)return S.rules[i].a;
+  var c=calc(q);if(c)return c;
+  var n=new Date();
+  if(/\b(hora|horas)\b/.test(l))return "Agora são "+n.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})+".";
+  if(/\b(data|dia de hoje|hoje)\b/.test(l))return "Hoje é "+n.toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long",year:"numeric"})+".";
+  if(/\b(oi|olá|ola|e aí|bom dia|boa tarde|boa noite)\b/.test(l))return "Olá! Em que posso ajudar você hoje?";
+  if(/(seu nome|quem é você|quem é voce|quem e voce)/.test(l))return "Eu sou o PK GPT, um assistente de chat original.";
+  if(/(ajuda|o que você faz|o que voce faz)/.test(l))return "Posso conversar, fazer contas (ex.: 12*8+4), informar hora e data, e responder regras criadas pelo administrador.";
+  if(/(obrigad|valeu)/.test(l))return "Por nada! 😊";
+  return "Entendi: \""+q+"\". Ainda estou aprendendo — peça ao administrador para ensinar uma resposta para esse assunto.";
+}
+function send(t){
+  t=t.trim();if(!t)return;
+  var c=chat();if(!c){newChat();c=chat()}
+  if(!c.msgs.length)c.title=t.slice(0,28);
+  c.msgs.push({r:"u",t:t});save();render();
+  setTimeout(function(){var rp=reply(t);c.msgs.push({r:"b",t:rp});save();render();speak(rp)},450);
+}
+$("f").addEventListener("submit",function(e){e.preventDefault();var i=$("in");var v=i.value;i.value="";send(v)});
+$("new").onclick=newChat;
+$("menu").onclick=function(){$("side").classList.toggle("on")};
+function panel(){
+  $("s1").textContent=S.chats.length;
+  $("s2").textContent=S.chats.reduce(function(a,c){return a+c.msgs.length},0);
+  $("s3").textContent=S.rules.length;$("w").value=S.welcome;
+  var pl=$("pl");pl.innerHTML="";S.pays.forEach(function(x,i){var d=el("div","rule");d.appendChild(el("span",null,(x.ok?"✅ ":"⏳ ")+x.n+" · "+x.plan+" "+x.p+" · "+(x.ref||"")+(x.c?" · "+x.c:"")+(x.o?" · "+x.o:"")+" · "+x.t));var a=el("button","ghost",x.ok?"↩":"✓");a.onclick=function(){x.ok=!x.ok;save();panel()};var b=el("button","ghost","✕");b.onclick=function(){S.pays.splice(i,1);save();panel()};d.appendChild(a);d.appendChild(b);pl.appendChild(d)});
+  var l=$("rl");l.innerHTML="";
+  S.rules.forEach(function(r,i){var d=el("div","rule");d.appendChild(el("span",null,r.k+" → "+r.a));var b=el("button","ghost","✕");b.onclick=function(){S.rules.splice(i,1);save();panel()};d.appendChild(b);l.appendChild(d)});
+}
+$("adm").onclick=function(){closeSide();if(admin){panel();$("ovPanel").classList.add("on")}else{$("le").textContent="";$("u").value="";$("p").value="";$("ovLogin").classList.add("on")}};
+$("lc").onclick=function(){$("ovLogin").classList.remove("on")};
+$("lo").onclick=function(){
+  if($("u").value.trim()==="pk"&&$("p").value==="jhon123"){admin=true;$("ovLogin").classList.remove("on");render();panel();$("ovPanel").classList.add("on")}
+  else $("le").textContent="Usuário ou senha incorretos.";
+};
+$("p").addEventListener("keydown",function(e){if(e.key==="Enter")$("lo").click()});
+$("pc").onclick=function(){$("ovPanel").classList.remove("on")};
+$("out").onclick=function(){admin=false;$("ovPanel").classList.remove("on");render()};
+$("ws").onclick=function(){var v=$("w").value.trim();if(v){S.welcome=v;save();render()}};
+$("rs").onclick=function(){var k=$("rk").value.trim(),a=$("ra").value.trim();if(!k||!a)return;S.rules.push({k:k,a:a});$("rk").value="";$("ra").value="";save();panel()};
+$("clr").onclick=function(){S.chats=[];S.cur=null;save();render();panel()};
+var PL=[{n:"Starter",p:"R$ 9,90"},{n:"Pro",p:"R$ 19,90"},{n:"Max",p:"R$ 39,90"}],sel=1,ref="";
+function rows(box,arr){arr.forEach(function(r){var d=el("div");d.appendChild(el("span",null,r[0]));d.appendChild(el("b",null,r[1]));box.appendChild(d)})}
+function drawSum(){var s=$("sum");s.innerHTML="";rows(s,[["🧠 Plano",PL[sel].n],["🧠 Valor",PL[sel].p],["🧠 Chave Pix","075.736.565.56"],["🧠 Referência",ref]])}
+function showRc(x){var r=$("rc");r.innerHTML="";r.style.display="flex";r.appendChild(el("b",null,"🧠 Comprovante de aviso"));rows(r,[["Referência",x.ref],["Plano",x.plan+" · "+x.p],["Nome",x.n],["Status","⏳ Aguardando confirmação"],["Data",x.t]])}
+function drawPlans(){var b=$("plans");b.innerHTML="";PL.forEach(function(x,i){var d=el("div","plan"+(i===sel?" on":""));d.appendChild(el("b",null,x.n));d.appendChild(el("span",null,x.p));d.onclick=function(){sel=i;drawPlans()};b.appendChild(d)});drawSum()}
+$("pay").onclick=function(){closeSide();$("pm").textContent="";$("rc").style.display="none";ref="PK-"+Math.random().toString(36).slice(2,8).toUpperCase();drawPlans();$("ovPay").classList.add("on")};
+$("payc").onclick=function(){$("ovPay").classList.remove("on")};
+$("cp").onclick=function(){var k="07573656556",ok=false;try{navigator.clipboard.writeText(k).then(function(){$("pm").textContent="Chave copiada!"},function(){$("pm").textContent="Copie manualmente: "+k});ok=true}catch(e){}if(!ok)$("pm").textContent="Copie manualmente: "+k};
+$("paid").onclick=function(){var n=$("pn").value.trim();if(!n){$("pm").textContent="Digite seu nome para avisar o pagamento.";return}var rec={n:n,plan:PL[sel].n,p:PL[sel].p,ref:ref,c:$("pc2").value.trim(),o:$("po").value.trim(),ok:false,t:new Date().toLocaleString("pt-BR")};S.pays.unshift(rec);save();showRc(rec);$("pn").value="";$("pc2").value="";$("po").value="";$("pm").textContent="Pagamento informado! Aguarde a confirmação do administrador."};
+var LC="af-ZA sq-AL am-ET ar-SA ar-EG ar-AE ar-MA hy-AM az-AZ eu-ES be-BY bn-BD bn-IN bs-BA bg-BG my-MM ca-ES zh-CN zh-TW zh-HK hr-HR cs-CZ da-DK nl-NL nl-BE en-US en-GB en-AU en-CA en-IN en-IE en-NZ en-ZA et-EE fil-PH fi-FI fr-FR fr-CA fr-BE fr-CH gl-ES ka-GE de-DE de-AT de-CH el-GR gu-IN he-IL hi-IN hu-HU is-IS id-ID ga-IE it-IT it-CH ja-JP kn-IN kk-KZ km-KH ko-KR lo-LA lv-LV lt-LT mk-MK ms-MY ml-IN mt-MT mr-IN mn-MN ne-NP nb-NO fa-IR pl-PL pt-BR pt-PT pa-IN ro-RO ru-RU sr-RS si-LK sk-SK sl-SI es-ES es-MX es-AR es-CO es-CL es-PE es-VE es-US sw-KE sv-SE ta-IN te-IN th-TH tr-TR uk-UA ur-PK uz-UZ vi-VN cy-GB zu-ZA".split(" ");
+function nm(c){try{return new Intl.DisplayNames(["pt-BR"],{type:"language"}).of(c)||c}catch(e){return c}}
+function fl(c){var r=c.split("-")[1];if(!r||r.length!==2)return "🌍";return String.fromCodePoint(0x1F1E6+r.charCodeAt(0)-65,0x1F1E6+r.charCodeAt(1)-65)}
+function fillLang(){var s=$("lang"),arr=LC.slice();try{(window.speechSynthesis.getVoices()||[]).forEach(function(v){var c=(v.lang||"").replace("_","-");if(c&&arr.indexOf(c)<0)arr.push(c)})}catch(e){}
+arr.sort(function(a,b){return nm(a).localeCompare(nm(b),"pt-BR")});s.innerHTML="";arr.forEach(function(c){var o=el("option",null,fl(c)+" "+nm(c)+" ("+c+")");o.value=c;s.appendChild(o)});s.value=S.lang;if(!s.value)s.value="pt-BR"}
+function speak(t){if(!S.speak)return;try{var u=new SpeechSynthesisUtterance(t);u.lang=S.lang;var vs=window.speechSynthesis.getVoices()||[];for(var i=0;i<vs.length;i++)if((vs[i].lang||"").replace("_","-")===S.lang){u.voice=vs[i];break}window.speechSynthesis.cancel();window.speechSynthesis.speak(u)}catch(e){}}
+function note(t){var c=chat();if(!c){newChat();c=chat()}c.msgs.push({r:"b",t:t});save();render()}
+function spkLabel(){$("spk").textContent="🔊 Ler respostas: "+(S.speak?"ligado":"desligado")}
+$("spk").onclick=function(){S.speak=!S.speak;if(!S.speak){try{window.speechSynthesis.cancel()}catch(e){}}save();spkLabel()};
+$("lang").onchange=function(){S.lang=this.value;save()};
+try{if(window.speechSynthesis)window.speechSynthesis.onvoiceschanged=fillLang}catch(e){}
+fillLang();spkLabel();
+if(!S.chats.length)newChat();else{if(!chat())S.cur=S.chats[0].id;render()}
+})();
+</script>
+</body>
+</html>
